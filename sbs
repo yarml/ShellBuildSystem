@@ -14,6 +14,22 @@ VERB=${1:-"help"}
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 
+# You may add more verbs simply by creating more functions
+# For example:
+# custom_verb() {
+#     echo "Custom Verb!"
+# }
+# And this verb would be invoked with: 'sbs custom_verb'
+# If you want a function to not be a verb, then:
+#     add its name to the 'NOT_VERB' array
+# For example:
+# not_verb_just_a_function() {
+#     echo "This is not a verb"
+# }
+# NOT_VERB=("other_non_verb_function" "not_verb_just_a_function")
+
+NOT_VERB=(remove_update_files)
+
 help() {
     echo "Usage: sbs <verb>
 verbs: help  : Shows this page and exists
@@ -28,7 +44,12 @@ build() {
 }
 
 clean() {
-    source ${PROJECT_FILE}
+    if [[ -f ${PROJECT_FILE} ]]; then
+        source ${PROJECT_FILE}
+    else
+        echo "Project file not found!"
+        exit 1
+    fi
     BUILD_DIR=${BUILD_DIR:-"${PROJECT_DIR}/build/"}
     _RBDIR=${_RBDIR:-"${BUILD_DIR}/"}
     [[ -d "${_RBDIR}/debug/obj" ]] && rm -rf "${_RBDIR}/debug/obj"
@@ -88,14 +109,7 @@ update() {
     echo "Updated sbs!"
 }
 
-# You may add more verbs simply by creating more functions
-# For example:
-# custom_verb() {
-#     echo "Custom Verb!"
-# }
-# And this verb would be invoked with: 'sbs custom_verb'
-
-if [[ $(command -v ${VERB}) ]]; then
+if [[ $(command -v ${VERB}) && ! ${NOT_VERB[@]} =~ (^|[[:space:]])"${VERB}"($|[[:space:]]) ]]; then
     ${VERB}
 else
     echo "Unknown verb: ${VERB}"
