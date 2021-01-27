@@ -46,7 +46,9 @@ elif [[ ${VERB} = "update" ]]; then
     echo "Extracting files..."
     tar -xzf latest.tar.gz
     echo "Copying new files to .sbs directory..."
-    \cp -r ShellBuildSystem-latest/.sbs ..
+    \cp -r ShellBuildSystem-latest/.sbs/* ../.sbs
     cd ..
+    echo "Removing temporary files..."
+    rm -rf __update_sbs_tmp
     echo "Updated sbs!"
 fi
