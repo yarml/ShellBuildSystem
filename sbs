@@ -7,8 +7,6 @@
 #        update : Update SBS installation from github to match the latest release
 # If no verb is specified then 'help' is deduced
 
-source .sbs/sbscfg.bash
-
 VERB=${1:-"help"}
 
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
@@ -72,17 +70,51 @@ remove_update_files() {
 update() {
     mkdir -p __update_sbs_tmp
     cd __update_sbs_tmp
+
+    if [[ $[command -v jq) ]]; then
+        echo "Cannot find command jq, please install it first"
+        exit 1
+    fi
+
+    GITHUB_API_LATEST="https://api.github.com/repos/TheCoderCrab/ShellBuildSystem/releases/latest"
+
+    echo "Fetching update meta-data from: \"${GITHUB_API_LATEST}\"..."
+
+    if [[ $(command -v wget) ]]; then
+        TAG_NAME=$(wget -O - -q ${GITHUB_API_LATEST} | jq -r ".tag_name")
+    elif [[ $(command -v curl) ]]; then
+        TAG_NAME=$(curl -s ${GITHUB_API_LATEST} | jq -r ".tag_name")
+    else
+        echo "Please install wget or curl before trying to update"
+        cd ..
+        remove_update_files
+        exit 1
+    fi
+
+    
+    if [[ -f .sbs/sbs.version ]]; then
+        CURRENT_VERSION=$(cat .sbs/sbs.version)
+    else
+        CURRENT_VERSION="unknown"
+    fi
+
+    echo "Latest version: ${TAG_NAME}"
+    echo "Current version: ${CURRENT_VERSION:-"unknown"}"
+
+    if [[ ${CURRENT_VERSION} != ${TAG_NAME} ]]; then
+        echo "Installing new update..."
+    else
+        echo "Latest update already installed"
+    fi
+
+    UPDATE_URL="https://github.com/TheCoderCrab/ShellBuildSystem/archive/${TAG_NAME}.tar.gz"
+    
     echo "Downloading update..."
     
     if [[ $(command -v wget) ]]; then
         CMD="wget"
     elif [[ $(command -v curl) ]]; then
         CMD="curl"
-    else
-        echo "Please install wget or curl before trying to update"
-        cd ..
-        remove_update_files
-        exit 1
     fi
     ${CMD} ${UPDATE_URL}
     if [[ $? -ne 0 ]]; then
@@ -106,6 +138,7 @@ update() {
     fi
     cd ..
     remove_update_files
+    echo ${TAG_NAME} > .sbs/sbs.version
     echo "Updated sbs!"
 }
 
