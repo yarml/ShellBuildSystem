@@ -71,7 +71,7 @@ update() {
     mkdir -p __update_sbs_tmp
     cd __update_sbs_tmp
 
-    if [[ $[command -v jq) ]]; then
+    if [[ ! $(command -v jq) ]]; then
         echo "Cannot find command jq, please install it first"
         exit 1
     fi
@@ -105,6 +105,7 @@ update() {
         echo "Installing new update..."
     else
         echo "Latest update already installed"
+        exit 0
     fi
 
     UPDATE_URL="https://github.com/TheCoderCrab/ShellBuildSystem/archive/${TAG_NAME}.tar.gz"
@@ -123,7 +124,7 @@ update() {
         exit 1
     fi
     echo "Extracting files..."
-    tar -xzf latest.tar.gz
+    tar -xzf ${TAG_NAME}.tar.gz
     if [[ $? -ne 0 ]]; then
         echo "Problem while extracting the update files!"
         remove_update_files
