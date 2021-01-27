@@ -131,7 +131,7 @@ update() {
         exit 1
     fi
     echo "Copying new files to .sbs directory..."
-    \cp -r ShellBuildSystem-latest/.sbs/* ../.sbs
+    \cp -r ShellBuildSystem*/.sbs/* ../.sbs
     if [[ $? -ne 0 ]]; then
         echo "Problem while copying the update files!"
         remove_update_files
