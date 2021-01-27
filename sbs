@@ -14,6 +14,27 @@ VERB=${1:-"help"}
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 
+help() {
+    echo "Usage: sbs <verb>
+verbs: help  : Shows this page and exists
+       build : build the project
+       clean : Clean the build directory and sbs' tmp directory
+       update: Update SBS installation from github to match the latest release
+If no verb is specified then 'help' is deduced"
+}
+
+build() {
+    source .sbs/sbs.bash
+}
+
+clean() {
+    source ${PROJECT_FILE}
+    BUILD_DIR=${BUILD_DIR:-"${PROJECT_DIR}/build/"}
+    _RBDIR=${_RBDIR:-"${BUILD_DIR}/"}
+    [[ -d "${_RBDIR}/debug/obj" ]] && rm -rf "${_RBDIR}/debug/obj"
+    [[ -d "${_RBDIR}/release/obj" ]] && rm -rf "${_RBDIR}/release/obj"
+}
+
 remove_update_files() {
     echo "Removing temporary file..."
     if [[ $(basename ${PWD}) = "__update_sbs_tmp" ]]; then
@@ -27,29 +48,14 @@ remove_update_files() {
     fi
 }
 
-if [[ ${VERB} = "help" ]]; then
-    echo "Usage: sbs <verb>
-verbs: help  : Shows this page and exists
-       build : build the project
-       clean : Clean the build directory and sbs' tmp directory
-       update: Update SBS installation from github to match the latest release
-If no verb is specified then 'help' is deduced"
-elif [[ ${VERB} = "build" ]]; then
-    source .sbs/sbs.bash
-elif [[ ${VERB} = "clean" ]]; then
-    source ${PROJECT_FILE}
-    BUILD_DIR=${BUILD_DIR:-"${PROJECT_DIR}/build/"}
-    _RBDIR=${_RBDIR:-"${BUILD_DIR}/"}
-    [[ -d "${_RBDIR}/debug/obj" ]] && rm -rf "${_RBDIR}/debug/obj"
-    [[ -d "${_RBDIR}/release/obj" ]] && rm -rf "${_RBDIR}/release/obj"
-elif [[ ${VERB} = "update" ]]; then
+update() {
     mkdir -p __update_sbs_tmp
     cd __update_sbs_tmp
     echo "Downloading update..."
     
-    if [[ command -v wget ]]; then
+    if [[ $(command -v wget) ]]; then
         CMD="wget"
-    elif [[ command -v curl ]]; then
+    elif [[ $(command -v curl) ]]; then
         CMD="curl"
     else
         echo "Please install wget or curl before trying to update"
@@ -80,10 +86,17 @@ elif [[ ${VERB} = "update" ]]; then
     cd ..
     remove_update_files
     echo "Updated sbs!"
-elif [[ ${VERB} = "custom" ]]; then
-    # You may add custom verbs
-    echo "You may add custom verbs"
+}
+
+# You may add more verbs simply by creating more functions
+# For example:
+# custom_verb() {
+#     echo "Custom Verb!"
+# }
+# And this verb would be invoked with: 'sbs custom_verb'
+
+if [[ $(command -v ${VERB}) ]]; then
+    ${VERB}
 else
     echo "Unknown verb: ${VERB}"
-    exit 1
 fi
