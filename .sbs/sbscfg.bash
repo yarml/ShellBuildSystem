@@ -1,2 +1,2 @@
 
-UPDATE_URL="https://github.com/TheCoderCrab/ShellBuildSystem/releases/latest/download/sbs.tar.gz"
+UPDATE_URL="https://github.com/TheCoderCrab/ShellBuildSystem/archive/latest.tar.gz"

@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # Usage: sbs <verb>
-# verbs: help  : Shows this page and exists
-#        build : build the project
-#        clean : Clean the build directory and sbs' tmp directory
-#        update: Update SBS installation from github to match the latest release
+# verbs: help   : Shows this page and exists
+#        build  : build the project
+#        clean  : Clean the build directory and sbs' tmp directory
+#        update : Update SBS installation from github to match the latest release
 # If no verb is specified then 'help' is deduced
+
+source .sbs/sbscfg.bash
 
 VERB=${1:-"help"}
 
@@ -29,5 +31,22 @@ elif [[ ${VERB} = "clean" ]]; then
     [[ -d "${_RBDIR}/debug/obj" ]] && rm -rf "${_RBDIR}/debug/obj"
     [[ -d "${_RBDIR}/release/obj" ]] && rm -rf "${_RBDIR}/release/obj"
 elif [[ ${VERB} = "update" ]]; then
-    echo "Not supported yet!"
+    mkdir -p __update_sbs_tmp
+    cd __update_sbs_tmp
+    echo "Downloading update..."
+    if [[ command -v wget ]]; then
+        wget ${UPDATE_URL}
+    elif [[ command -v curl ]]; then
+        curl ${UPDATE_URL}
+    fi
+    if [[ $? -ne 0 ]]; then
+        echo "Problem while downloading the update files!"
+        exit 1
+    fi
+    echo "Extracting files..."
+    tar -xzf latest.tar.gz
+    echo "Copying new files to .sbs directory..."
+    \cp -r ShellBuildSystem-latest/.sbs ..
+    cd ..
+    echo "Updated sbs!"
 fi
