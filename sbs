@@ -92,8 +92,8 @@ update() {
     fi
 
     
-    if [[ -f .sbs/sbs.version ]]; then
-        CURRENT_VERSION=$(cat .sbs/sbs.version)
+    if [[ -f ../.sbs/sbs.version ]]; then
+        CURRENT_VERSION=$(cat ../.sbs/sbs.version)
     else
         CURRENT_VERSION="unknown"
     fi
