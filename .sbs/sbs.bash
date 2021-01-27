@@ -5,12 +5,15 @@
 
 
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
+SBSRC=${SBSRC:-"${PROJECT_DIR}/sbsrc"}
 SBS_DIR=${SBS_DIR:-"${PROJECT_DIR}/.sbs"}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 TMP_DIR=${TMP_DIR:-"${SBS_DIR}/tmp/"}
 SUB_PROJECT_RET="${TMP_DIR}/sub_proj_ret"
 
 cd ${PROJECT_DIR}
+
+[[ -f ${SBSRC} ]] && source ${SBSRC}
 
 mkdir -p ${TMP_DIR}
 
@@ -46,8 +49,8 @@ CCFLAGS=${CCFLAGS:-""}
 ASFLAGS=${ASFLAGS:-""}
 LINKFLAGS=${LINKFLAGS:-""}
 CEXTENSIONS=${CEXTENSIONS:-".c"}
-CXXEXTENSIONS=${CXXEXTENSIONS:-".cc .cpp .cxx .c++"}
-ASEXTENSIONS=${ASEXTENSIONS:-".asm .as .nasm .s"}
+CXXEXTENSIONS=${CXXEXTENSIONS:-".cc .cxx .cpp .c++"}
+ASEXTENSIONS=${ASEXTENSIONS:-".s .asm .as"}
 SRC=${SRC:-"${PROJECT_DIR}/src/"}
 ADDITIONAL_SOURCES=${ADDITIONAL_SOURCES:-""}
 INCLUDE=${INCLUDE:-"${PROJECT_DIR}/include"}
@@ -174,10 +177,11 @@ for PROJ in ${_SPR[@]}; do
     fi
     print "${fg_green}${bold}Building subproject \"${fg_blue}${__PROJECT_NAME}${fg_green}\""
     env -i PATH="${PATH}" TERM="${TERM}" PROJECT_DIR="${__SUB_PROJ_DIR}" SBS_DIR="${SBS_DIR}"\
-    PROJECT_FILE="${__SUB_PROJ_DIR}/$(basename ${PROJECT_FILE})"                              \
+    PROJECT_FILE="${__SUB_PROJ_DIR}/$(basename ${PROJECT_FILE})" SBSRC=${SBSRC}               \
     CC="${CC}" CXX="${CXX}" AS="${AS}" LINKER="${LINKER}" CEXTENSIONS="${CEXTENSIONS}"         \
     CXXEXTENSIONS="${CXXEXTENSIONS}" ASEXTENSIONS="${ASEXTENSIONS}" BUILD_TYPE="${BUILD_TYPE}"  \
-    BUILD_DIR="${BUILD_DIR}/${__PROJECT_NAME}" _IS_SUB_PROJECT=1                                 \
+    BUILD_DIR="${BUILD_DIR}/${__PROJECT_NAME}" _IS_SUB_PROJECT=1 CFLAGS="${CFLAGS}"              \
+    CXXFLAGS="${CXXFLAGS}" CCFLAGS="${CCFLAGS}" ASFLAGS="${ASFLAGS}"                              \
     bash ${SBS_DIR}/sbs.bash
     if [[ $? -ne 0 ]]; then
         error "Subproject ${__PROJECT_NAME} didn't execute properly"
@@ -221,23 +225,29 @@ for SOURCE in ${_ASRC[@]}; do
     OBJECTS+=" ${SOURCE_OUT}"
     if [[ ${_CEXT[@]} =~ "${SOURCE_EXT}" ]]; then
         print " ${bold}${fg_yellow}=> ${fg_green}Compiling $(basename ${SOURCE})"
-        ${CC} -c ${INCLUDE_FLAGS} ${CFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}
+        CMD="${CC} -c ${INCLUDE_FLAGS} ${CFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}"
+        ${CMD}
         if [[ $? -ne 0 ]]; then
             error "Failed to compile: ${SOURCE}"
+            error "While executing: "${CMD}""
             exit ${exit_error}
         fi
     elif [[ ${_CXXEXT[@]} =~ "${SOURCE_EXT}" ]]; then
         print " ${bold}${fg_yellow}=> ${fg_green}Compiling $(basename ${SOURCE})"
-        ${CXX} -c ${INCLUDE_FLAGS} ${CXXFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}
+        CMD="${CXX} -c ${INCLUDE_FLAGS} ${CXXFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}"
+        ${CMD}
         if [[ $? -ne 0 ]]; then
             error "Failed to compile: ${SOURCE}"
+            error "While executing: "${CMD}""
             exit ${exit_error}
         fi
     elif [[ ${_ASEXT[@]} =~ "${SOURCE_EXT}" ]]; then
         print " ${bold}${fg_yellow}=> ${fg_green}Assembling $(basename ${SOURCE})"
-        ${AS} ${AS_INCLUDE_FLAGS} ${ASFLAGS} -o ${SOURCE_OUT}
+        CMD="${AS} ${AS_INCLUDE_FLAGS} ${ASFLAGS} ${SOURCE} -o ${SOURCE_OUT}"
+        ${CMD}
         if [[ $? -ne 0 ]]; then
             error "Failed to assemble: ${SOURCE}"
+            error "While executing: "${CMD}""
             exit ${exit_error}
         fi
     fi
@@ -248,9 +258,11 @@ for SOURCE in ${C_SOURCES[@]}; do
     OBJECTS+=" ${_BDIR}/${SOURCE//\//$'_'}.o"
     print " ${bold}${fg_yellow}=> ${fg_green}Compiling $(basename ${SOURCE})"
     debug "Compiling ${SOURCE}"
-    ${CC} -c ${INCLUDE_FLAGS} ${CFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}
+    CMD="${CC} -c ${INCLUDE_FLAGS} ${CFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}"
+    ${CMD}
     if [[ $? -ne 0 ]]; then
         error "Failed to compile: ${SOURCE}"
+        error "While executing: "${CMD}""
         exit ${exit_error}
     fi
 done
@@ -260,9 +272,11 @@ for SOURCE in ${CXX_SOURCES[@]}; do
     OBJECTS+=" ${_BDIR}/${SOURCE//\//$'_'}.o"
     print " ${bold}${fg_yellow}=> ${fg_green}Compiling $(basename ${SOURCE})"
     debug "Compiling ${SOURCE}"
-    ${CXX} -c ${INCLUDE_FLAGS} ${CXXFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}
+    CMD="${CXX} -c ${INCLUDE_FLAGS} ${CXXFLAGS} ${CCFLAGS} ${SOURCE} -o ${SOURCE_OUT}"
+    ${CMD}
     if [[ $? -ne 0 ]]; then
         error "Failed to compile: ${SOURCE}"
+        error "While executing: "${CMD}""
         exit ${exit_error}
     fi
 done
@@ -272,26 +286,30 @@ for SOURCE in ${AS_SOURCES[@]}; do
     OBJECTS+=" ${_BDIR}/${SOURCE//\//$'_'}.o"
     print " ${bold}${fg_yellow}=> ${fg_green}Assembling $(basename ${SOURCE})"
     debug "Assembling ${SOURCE}"
-    ${AS} ${AS_INCLUDE_FLAGS} ${ASFLAGS} -o ${SOURCE_OUT}
+    CMD="${AS} ${AS_INCLUDE_FLAGS} ${ASFLAGS} ${SOURCE} -o ${SOURCE_OUT}"
+    ${CMD}
     if [[ $? -ne 0 ]]; then
         error "Failed to assemble: ${SOURCE}"
+        error "While executing: "${CMD}""
         exit ${exit_error}
     fi
 done
 
 if [[ ${TYPE} = "exec" ]]; then
     print " ${bold}${fg_yellow}=> ${fg_green}Linking executable: ${fg_blue}$(basename ${OUT})${fg_green}..."
-    ${LINKER} ${LINKFLAGS} ${OBJECTS} ${LIB_DIRS_FLAGS} ${LIB_FLAGS} -o ${OUT}
+    CMD="${LINKER} ${LINKFLAGS} ${OBJECTS} ${LIB_DIRS_FLAGS} ${LIB_FLAGS} -o ${OUT}"
 elif [[ ${TYPE} = "slib" ]]; then
     print " ${bold}${fg_yellow}=> ${fg_green}Generating static library: ${fg_blue}$(basename ${OUT})${fg_green}..."
-    ${STATIC_LINKER} crf "${_RBDIR}/lib${TARGET}.a" ${OBJECTS}
+    CMD="${STATIC_LINKER} crf "${_RBDIR}/lib${TARGET}.a" ${OBJECTS}"
 elif [[ ${TYPE} = "dlib" ]]; then
     print " ${bold}${fg_yellow}=> ${fg_green}Linking shared library: ${fg_blue}$(basename ${OUT})${fg_green}..."
-    ${LINKER} -shared ${LINKFLAGS} ${OBJECTS} ${LIB_DIRS_FLAGS} ${LIB_FLAGS} -o ${OUT}
+    CMD="${LINKER} -shared ${LINKFLAGS} ${OBJECTS} ${LIB_DIRS_FLAGS} ${LIB_FLAGS} -o ${OUT}"
 fi
 
+${CMD}
 if [[ $? -ne 0 ]]; then
     error "Linking failed!"
+    error "While executing: ${CMD}"
     exit ${exit_error}
 fi
 

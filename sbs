@@ -1,3 +1,33 @@
 #!/bin/bash
 
-source .sbs/sbs.bash
+# Usage: sbs <verb>
+# verbs: help  : Shows this page and exists
+#        build : build the project
+#        clean : Clean the build directory and sbs' tmp directory
+#        update: Update SBS installation from github to match the latest release
+# If no verb is specified then 'help' is deduced
+
+VERB=${1:-"help"}
+
+PROJECT_DIR=${PROJECT_DIR:-$PWD}
+PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
+
+
+if [[ ${VERB} = "help" ]]; then
+    echo "Usage: sbs <verb>
+verbs: help  : Shows this page and exists
+       build : build the project
+       clean : Clean the build directory and sbs' tmp directory
+       update: Update SBS installation from github to match the latest release
+If no verb is specified then 'help' is deduced"
+elif [[ ${VERB} = "build" ]]; then
+    source .sbs/sbs.bash
+elif [[ ${VERB} = "clean" ]]; then
+    source ${PROJECT_FILE}
+    BUILD_DIR=${BUILD_DIR:-"${PROJECT_DIR}/build/"}
+    _RBDIR=${_RBDIR:-"${BUILD_DIR}/"}
+    [[ -d "${_RBDIR}/debug/obj" ]] && rm -rf "${_RBDIR}/debug/obj"
+    [[ -d "${_RBDIR}/release/obj" ]] && rm -rf "${_RBDIR}/release/obj"
+elif [[ ${VERB} = "update" ]]; then
+    echo "Not supported yet!"
+fi
