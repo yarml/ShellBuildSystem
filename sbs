@@ -42,6 +42,7 @@ build() {
 }
 
 clean() {
+    echo "Cleaning objects and temporary files"
     if [[ -f ${PROJECT_FILE} ]]; then
         source ${PROJECT_FILE}
     else
@@ -52,6 +53,8 @@ clean() {
     _RBDIR=${_RBDIR:-"${BUILD_DIR}/"}
     [[ -d "${_RBDIR}/debug/obj" ]] && rm -rf "${_RBDIR}/debug/obj"
     [[ -d "${_RBDIR}/release/obj" ]] && rm -rf "${_RBDIR}/release/obj"
+    [[ -d ".sbs/tmp" ]] && rm -rf ".sbs/tmp"
+    echo "Cleaned!"
 }
 
 remove_update_files() {
@@ -113,9 +116,9 @@ update() {
     echo "Downloading update..."
     
     if [[ $(command -v wget) ]]; then
-        CMD="wget"
+        CMD="wget -q"
     elif [[ $(command -v curl) ]]; then
-        CMD="curl"
+        CMD="curl -s -L -o ${TAG_NAME}.tar.gz"
     fi
     ${CMD} ${UPDATE_URL}
     if [[ $? -ne 0 ]]; then
