@@ -40,7 +40,7 @@ If no verb is specified then 'help' is deduced"
 
 source .sbs/verbs_builtins.bash
 
-if [[ $(command -v ${VERB}) && ! ${NOT_VERB[@]} =~ (^|[[:space:]])"${VERB}"($|[[:space:]]) ]]; then
+if [[ $(type -t ${VERB}) = "function" && ! ${NOT_VERB[@]} =~ (^|[[:space:]])"${VERB}"($|[[:space:]]) ]]; then
     ${VERB}
 else
     echo "Unknown verb: ${VERB}"
