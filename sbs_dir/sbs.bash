@@ -3,7 +3,6 @@
 # Uncomment for additional debug info
 # SBS_DEBUG=1
 
-# FIXME: Now that sbs is installed on system, sub_proj_ret may conflict if multiple sbs's are running
 # TODO: rewrite this in python3
 # It isn't a joke
 
@@ -11,9 +10,8 @@ PROJECT_DIR=${PROJECT_DIR:-$PWD}
 SBSRC=${SBSRC:-"${PROJECT_DIR}/sbsrc"}
 SBS_DIR=${SBS_DIR:-"${HOME}/.local/share/sbs/"}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
-TMP_DIR=${TMP_DIR:-"${SBS_DIR}/tmp/"}
-SUB_PROJECT_RET="${TMP_DIR}/sub_proj_ret"
-LAST_BUILD_FILE="${SBS_DIR}/last_build"
+SUB_PROJECT_RET="${PROJECT_DIR}/.sbs/sub_proj_ret"
+LAST_BUILD_FILE="${PROJECT_DIR}/.sbs/last_build"
 if [[ -f ${LAST_BUILD_FILE} ]]; then
     LAST_BUILD_TIME=$(cat ${LAST_BUILD_FILE})
 else
@@ -24,8 +22,6 @@ fi
 cd ${PROJECT_DIR}
 
 [[ -f ${SBSRC} ]] && source ${SBSRC}
-
-mkdir -p ${TMP_DIR}
 
 source ${SBS_DIR}/exit_code.bash
 source ${SBS_DIR}/term.bash
@@ -351,7 +347,6 @@ if [[ ${_IS_SUB_PROJECT} -eq 1 ]]; then
     printf "_SPR_TYPE=${TYPE}\n_SPR_INCLUDE=(${ABSOLUTE_INCLUDE})\n_SPR_TARGET=${TARGET}\n_SPR_BUILD_DIR=${_RBDIR}\n" > ${SUB_PROJECT_RET}
 else
     echo $(date +%s) > ${LAST_BUILD_FILE}
-    rm -rf ${TMP_DIR}
 fi
 
 print "${bold}${fg_green}Done building project: ${TARGET}" 
