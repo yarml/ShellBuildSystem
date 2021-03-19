@@ -6,18 +6,27 @@
 # TODO: rewrite this in python3
 # It isn't a joke
 
+SBS_DIR=${SBS_DIR:-"${HOME}/.local/share/sbs/"}
+
+source ${SBS_DIR}/exit_code.bash
+source ${SBS_DIR}/term.bash
+source ${SBS_DIR}/colors.bash
+
+debug "Started sbs"
+
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 SBSRC=${SBSRC:-"${PROJECT_DIR}/sbsrc"}
-SBS_DIR=${SBS_DIR:-"${HOME}/.local/share/sbs/"}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 SUB_PROJECT_RET=${SUB_PROJECT_RET:-"${PROJECT_DIR}/.sbs/sub_proj_ret"}
-LAST_BUILD_FILE=${LAST_BUILD_FILE:-"${PROJECT_DIR}/.sbs/last_build}"
+LAST_BUILD_FILE=${LAST_BUILD_FILE:-"${PROJECT_DIR}/.sbs/last_build"}
 if [[ -f ${LAST_BUILD_FILE} ]]; then
-    LAST_BUILD_TIME=$(cat ${LAST_BUILD_FILE})
+    LAST_BUILD_TIME=${LAST_BUILD_TIME:-$(cat ${LAST_BUILD_FILE})}
 else
-    LAST_BUILD_TIME=0
+    LAST_BUILD_TIME=${LAST_BUILD_TIME:-0}
 fi
 
+debug "Initialized sbs variables"
+debug "Last build time ${LAST_BUILD_TIME}"
 
 cd ${PROJECT_DIR}
 
@@ -25,9 +34,6 @@ mkdir -p ${PROJECT_DIR}/.sbs
 
 [[ -f ${SBSRC} ]] && source ${SBSRC}
 
-source ${SBS_DIR}/exit_code.bash
-source ${SBS_DIR}/term.bash
-source ${SBS_DIR}/colors.bash
 
 debug "Sbs is in debug mode"
 debug "Last build: ${LAST_BUILD_TIME}"
@@ -186,12 +192,12 @@ for PROJ in ${_SPR[@]}; do
         __SUB_PROJ_DIR="${PROJECT_DIR}/${PROJ}"
     fi
     print "${fg_green}${bold}Building subproject \"${fg_blue}${__PROJECT_NAME}${fg_green}\""
-    env -i PATH="${PATH}" TERM="${TERM}" PROJECT_DIR="${__SUB_PROJ_DIR}" SBS_DIR="${SBS_DIR}"\
-    PROJECT_FILE="${__SUB_PROJ_DIR}/$(basename ${PROJECT_FILE})" SBSRC=${SBSRC}               \
-    CC="${CC}" CXX="${CXX}" AS="${AS}" LINKER="${LINKER}" CEXTENSIONS="${CEXTENSIONS}"         \
-    CXXEXTENSIONS="${CXXEXTENSIONS}" ASEXTENSIONS="${ASEXTENSIONS}" BUILD_TYPE="${BUILD_TYPE}"  \
-    BUILD_DIR="${BUILD_DIR}/${__PROJECT_NAME}" _IS_SUB_PROJECT=1 CFLAGS="${CFLAGS}"              \
-    CXXFLAGS="${CXXFLAGS}" CCFLAGS="${CCFLAGS}" ASFLAGS="${ASFLAGS}"                              \
+    env -i SBS_DEBUG=${SBS_DEBUG} PATH="${PATH}" TERM="${TERM}" PROJECT_DIR="${__SUB_PROJ_DIR}" SBS_DIR="${SBS_DIR}"\
+    PROJECT_FILE="${__SUB_PROJ_DIR}/$(basename ${PROJECT_FILE})" SBSRC=${SBSRC}                                     \
+    CC="${CC}" CXX="${CXX}" AS="${AS}" LINKER="${LINKER}" CEXTENSIONS="${CEXTENSIONS}"                               \
+    CXXEXTENSIONS="${CXXEXTENSIONS}" ASEXTENSIONS="${ASEXTENSIONS}" BUILD_TYPE="${BUILD_TYPE}"                        \
+    BUILD_DIR="${BUILD_DIR}/${__PROJECT_NAME}" _IS_SUB_PROJECT=1 CFLAGS="${CFLAGS}" LAST_BUILD_TIME=${LAST_BUILD_TIME} \
+    CXXFLAGS="${CXXFLAGS}" CCFLAGS="${CCFLAGS}" ASFLAGS="${ASFLAGS}" SUB_PROJECT_RET="${SUB_PROJECT_RET}"               \
     bash ${SBS_DIR}/sbs.bash
     if [[ $? -ne 0 ]]; then
         error "Subproject ${__PROJECT_NAME} didn't execute properly"
@@ -336,7 +342,7 @@ else
     print " ${bold}${fg_blue}=> ${fg_green} Skipping ${OUT}, already up to date"
 fi
 
-
+debug "Is sub project ${_IS_SUB_PROJECT}"
 if [[ ${_IS_SUB_PROJECT} -eq 1 ]]; then
     ABSOLUTE_INCLUDE=""
     for PINC in ${_PINC[@]}; do
@@ -346,8 +352,10 @@ if [[ ${_IS_SUB_PROJECT} -eq 1 ]]; then
             ABSOLUTE_INCLUDE+=" ${PWD}/${PINC}"
         fi
     done
+    debug "Passing results to parent project"
     printf "_SPR_TYPE=${TYPE}\n_SPR_INCLUDE=(${ABSOLUTE_INCLUDE})\n_SPR_TARGET=${TARGET}\n_SPR_BUILD_DIR=${_RBDIR}\n" > ${SUB_PROJECT_RET}
 else
+    debug "Writing last build date"
     echo $(date +%s) > ${LAST_BUILD_FILE}
 fi
 

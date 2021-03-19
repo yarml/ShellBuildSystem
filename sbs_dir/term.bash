@@ -5,7 +5,7 @@ print() {
 }
 
 debug() {
-    if [[ -v SBS_DEBUG ]]; then
+    if [[ ${SBS_DEBUG} = 0 ]]; then
         print "${bold}${fg_magenta}Debug${reset}: ${@}" 
     fi
 }
