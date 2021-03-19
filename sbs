@@ -1,44 +1,12 @@
 #!/bin/bash
 
-# Usage: sbs <verb>
-# verbs: help   : Shows this page and exists
-#        build  : build the project
-#        clean  : Clean the build directory and sbs' tmp directory
-#        update : Update SBS installation from github to match the latest release
-# If no verb is specified then 'help' is deduced
-
 VERB=${1:-"help"}
 
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 
-# You may add more verbs simply by creating more functions
-# For example:
-# custom_verb() {
-#     echo "Custom Verb!"
-# }
-# And this verb would be invoked with: 'sbs custom_verb'
-# If you want a function to not be a verb, then:
-#     add its name to the 'NOT_VERB' array
-# For example:
-# not_verb_just_a_function() {
-#     echo "This is not a verb"
-# }
-# NOT_VERB=("other_non_verb_function" "not_verb_just_a_function")
-# You may also override builtin commands by creating ones with the same name
-
-NOT_VERB=(remove_update_files)
-
-help() {
-    echo "Usage: sbs <verb>
-verbs: help  : Shows this page and exists
-       build : build the project
-       clean : Clean the build directory and sbs' tmp directory
-       update: Update SBS installation from github to match the latest release
-If no verb is specified then 'help' is deduced"
-}
-
-source .sbs/verbs_builtins.bash
+source ${HOME}/.local/share/sbs/verbs_builtins.bash
+source ${PROJECT_DIR}/sbs.verbs
 
 if [[ $(type -t ${VERB}) = "function" && ! ${NOT_VERB[@]} =~ (^|[[:space:]])"${VERB}"($|[[:space:]]) ]]; then
     ${VERB}

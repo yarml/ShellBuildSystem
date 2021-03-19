@@ -1,0 +1,15 @@
+
+# You may add more verbs simply by creating more functions
+# For example:
+# custom_verb() {
+#     echo "Custom Verb!"
+# }
+# And this verb would be invoked with: 'sbs custom_verb'
+# If you want a function to not be a verb, then:
+#     add its name to the 'NOT_VERB' array
+# For example:
+# not_verb_just_a_function() {
+#     echo "This is not a verb"
+# }
+# NOT_VERB=("other_non_verb_function" "not_verb_just_a_function")
+# You may also override builtin commands by creating ones with the same name

@@ -3,10 +3,13 @@
 # Uncomment for additional debug info
 # SBS_DEBUG=1
 
+# FIXME: Now that sbs is installed on system, sub_proj_ret may conflict if multiple sbs's are running
+# TODO: rewrite this in python3
+# It isn't a joke
 
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 SBSRC=${SBSRC:-"${PROJECT_DIR}/sbsrc"}
-SBS_DIR=${SBS_DIR:-"${PROJECT_DIR}/.sbs"}
+SBS_DIR=${SBS_DIR:-"${HOME}/local/share/sbs/"}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 TMP_DIR=${TMP_DIR:-"${SBS_DIR}/tmp/"}
 SUB_PROJECT_RET="${TMP_DIR}/sub_proj_ret"
