@@ -160,7 +160,7 @@ update() {
         remove_update_files
         exit 1
     fi
-    \cp ShellBuildSystem*/sbs /usr/bin/sbs
+    sudo cp ShellBuildSystem*/sbs /usr/bin/sbs
     if [[ $? -ne 0 ]]; then
         echo "Problem while copying the update files!"
         echo "Perhaps try to run the command as super user"
@@ -171,6 +171,14 @@ update() {
     remove_update_files
     echo ${TAG_NAME} > ${HOME}/.local/share/sbs/sbs.version
     echo "Updated sbs!"
+}
+
+delete() {
+    TMP=$(mktemp)
+    echo "rm -rf ${HOME}/.local/share/sbs/
+sudo rm -rf /bin/sbs
+rm -rf ${TMP}" > ${TMP}
+    source ${TMP}
 }
 
 NOT_VERB+=(remove_update_files)
