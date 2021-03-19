@@ -9,7 +9,7 @@
 
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 SBSRC=${SBSRC:-"${PROJECT_DIR}/sbsrc"}
-SBS_DIR=${SBS_DIR:-"${HOME}/local/share/sbs/"}
+SBS_DIR=${SBS_DIR:-"${HOME}/.local/share/sbs/"}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 TMP_DIR=${TMP_DIR:-"${SBS_DIR}/tmp/"}
 SUB_PROJECT_RET="${TMP_DIR}/sub_proj_ret"

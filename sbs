@@ -1,12 +1,18 @@
 #!/bin/bash
 
-VERB=${1:-"help"}
+if [[ $# -eq 0 ]]; then
+    echo "Please specify a verb."
+    echo "Usage: sbs <verb>"
+    exit 1
+fi
+
+VERB=$1
 
 PROJECT_DIR=${PROJECT_DIR:-$PWD}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
 
 source ${HOME}/.local/share/sbs/verbs_builtins.bash
-source ${PROJECT_DIR}/sbs.verbs
+[[ -f ${PROJECT_DIR}/sbs.verbs ]] && source ${PROJECT_DIR}/sbs.verbs
 
 if [[ $(type -t ${VERB}) = "function" && ! ${NOT_VERB[@]} =~ (^|[[:space:]])"${VERB}"($|[[:space:]]) ]]; then
     ${VERB}

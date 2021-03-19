@@ -11,5 +11,5 @@
 # not_verb_just_a_function() {
 #     echo "This is not a verb"
 # }
-# NOT_VERB=("other_non_verb_function" "not_verb_just_a_function")
-# You may also override builtin commands by creating ones with the same name
+# NOT_VERB+=("not_verb_just_a_function")
+# You may also override builtin verbs by creating ones with the same name

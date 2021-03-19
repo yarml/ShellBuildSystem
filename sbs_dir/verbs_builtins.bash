@@ -1,8 +1,8 @@
 #!/bin/bash
 
 new() {
-    AUTO_SETUP=${2:-"no-auto-setup"}
-    cp ${HOME}/.local/share/default_sbs_verbs ./sbs.verbs
+    AUTO_SETUP=${2:-"no-setup-guide"}
+    cp ${HOME}/.local/share/sbs/default_sbs_verbs ./sbs.verbs
     if [[ ${AUTO_SETUP} = "setup-guide" ]]; then
         proj-setup
     elif [[ ${AUTO_SETUP} = "no-setup-guide" ]]; then
