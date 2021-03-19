@@ -10,8 +10,8 @@ PROJECT_DIR=${PROJECT_DIR:-$PWD}
 SBSRC=${SBSRC:-"${PROJECT_DIR}/sbsrc"}
 SBS_DIR=${SBS_DIR:-"${HOME}/.local/share/sbs/"}
 PROJECT_FILE=${PROJECT_FILE:-"${PROJECT_DIR}/sbs.project"}
-SUB_PROJECT_RET="${PROJECT_DIR}/.sbs/sub_proj_ret"
-LAST_BUILD_FILE="${PROJECT_DIR}/.sbs/last_build"
+SUB_PROJECT_RET=${SUB_PROJECT_RET:-"${PROJECT_DIR}/.sbs/sub_proj_ret"}
+LAST_BUILD_FILE=${LAST_BUILD_FILE:-"${PROJECT_DIR}/.sbs/last_build}"
 if [[ -f ${LAST_BUILD_FILE} ]]; then
     LAST_BUILD_TIME=$(cat ${LAST_BUILD_FILE})
 else
@@ -20,6 +20,8 @@ fi
 
 
 cd ${PROJECT_DIR}
+
+mkdir -p ${PROJECT_DIR}/.sbs
 
 [[ -f ${SBSRC} ]] && source ${SBSRC}
 
