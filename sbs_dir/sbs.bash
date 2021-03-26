@@ -107,7 +107,7 @@ if [[ ${TYPE} = "exec" ]]; then
 elif [[ ${TYPE} = "slib" ]]; then
     OUT_NAME="lib${TARGET}.a"
 elif [[ ${TYPE} = "dlib" ]]; then
-    CCFLAGS+=" -fPIC"
+    CCFLAGS+=(" -fPIC")
     OUT_NAME="lib${TARGET}.so"
 else
     error "Invalid build type: ${TYPE}"
@@ -220,15 +220,15 @@ LIB_FLAGS=""
 OBJECTS=""
 
 for INC in ${_INC[@]} ${_PINC[@]}; do
-    INCLUDE_FLAGS+=" -I${INC}"
+    INCLUDE_FLAGS+=(" -I${INC}")
 done
 
 for LIB_DIR in ${_LDIRS[@]}; do
-    LIB_DIRS_FLAGS+=" -L${LIB_DIR}"
+    LIB_DIRS_FLAGS+=(" -L${LIB_DIR}")
 done
 
 for LIB in ${_LIBS[@]}; do
-    LIB_FLAGS+=" -l${LIB}"
+    LIB_FLAGS+=(" -l${LIB}")
 done
 
 debug " Include flags: \"${INCLUDE_FLAGS}\""
@@ -242,7 +242,7 @@ compile() {
     fi
     SOURCE_OUT="${_BDIR}/${SOURCE//\//$'_'}.o"
     SOURCE_EXT="${SOURCE##*.}"
-    OBJECTS+=" ${SOURCE_OUT}"
+    OBJECTS+=(" ${SOURCE_OUT}")
     SOURCE_MODIF=$(stat -c %Y ${SOURCE})
 
     # I think no ne has a file name containing '$&²²kuyfttuyrfi_uytf&'
@@ -347,9 +347,9 @@ if [[ ${_IS_SUB_PROJECT} -eq 1 ]]; then
     ABSOLUTE_INCLUDE=""
     for PINC in ${_PINC[@]}; do
         if [[ ${PINC:0:1} = "/" ]]; then
-            ABSOLUTE_INCLUDE+=" ${PINC}"
+            ABSOLUTE_INCLUDE+=(" ${PINC}")
         else
-            ABSOLUTE_INCLUDE+=" ${PWD}/${PINC}"
+            ABSOLUTE_INCLUDE+=(" ${PWD}/${PINC}")
         fi
     done
     debug "Passing results to parent project"
