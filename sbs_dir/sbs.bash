@@ -224,7 +224,7 @@ for INC in ${_INC[@]} ${_PINC[@]}; do
 done
 
 for LIB_DIR in ${_LDIRS[@]}; do
-    LIB_DIRS_FLAGS+" -L${LIB_DIR}"
+    LIB_DIRS_FLAGS+=" -L${LIB_DIR}"
 done
 
 for LIB in ${_LIBS[@]}; do
