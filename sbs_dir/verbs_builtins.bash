@@ -20,6 +20,7 @@ help() {
     print ${bold}${fg_yellow} "  proj-setup${reset}${fg_green}: " "Interactive menu to configure the project"
     print ${bold}${fg_yellow} "  build${reset}${fg_green}     : " "Build the project using the configuration"
     print ${bold}${fg_yellow} "  clean${reset}${fg_green}     : " "Clean builds"
+    print ${bold}${fg_yellow} "  remove${reset}${fg_green}    : " "Removes SBS from the system"
 }
 
 version() {
@@ -147,13 +148,13 @@ update() {
         CURRENT_VERSION="unknown"
     fi
 
-    print ${bold}${fg_green} "Latest version: ${TAG_NAME}"
-    print ${bold}${fg_green} "Current version: ${CURRENT_VERSION:-"unknown"}"
+    print ${bold}${fg_green} "Latest version: ${fg_yellow}${TAG_NAME}"
+    print ${bold}${fg_green} "Current version: ${fg_yellow}${CURRENT_VERSION:-"unknown"}"
 
     if [[ ${CURRENT_VERSION} != ${TAG_NAME} ]]; then
         print ${bold}${fg_green} "Installing new update..."
     else
-        print ${bold}${fg_green} "Latest update already installed"
+        print ${bold}${fg_blue} "=> ${fg_green}Latest update already installed"
         exit 0
     fi
 
@@ -168,38 +169,39 @@ update() {
     fi
     ${CMD} ${UPDATE_URL}
     if [[ $? -ne 0 ]]; then
-        print ${bold}${fg_green} "Problem while downloading the update files!"
+        error "Problem while downloading the update files!"
         remove_update_files
         exit 1
     fi
     print ${bold}${fg_green} "Extracting files..."
     tar -xzf ${TAG_NAME}.tar.gz
     if [[ $? -ne 0 ]]; then
-        print ${bold}${fg_green} "Problem while extracting the update files!"
+        error "Problem while extracting the update files!"
         remove_update_files
         exit 1
     fi
     print ${bold}${fg_green} "Copying new files to sbs directory..."
     \cp -r ShellBuildSystem*/sbs_dir/* ${SBS_INSTALLATION}
     if [[ $? -ne 0 ]]; then
-        print ${bold}${fg_green} "Problem while copying the update files!"
+        error "Problem while copying the update files!"
         remove_update_files
         exit 1
     fi
     sudo cp ShellBuildSystem*/sbs /usr/bin/sbs
     if [[ $? -ne 0 ]]; then
-        print ${bold}${fg_green} "Problem while copying the update files!"
-        print ${bold}${fg_green} "Perhaps try to run the command as super user"
+        error "Problem while copying the update files!"
+        print "Perhaps try to run the command as super user"
         remove_update_files
         exit 1
     fi
     cd ${PROJECT_DIR}
     remove_update_files
-    print ${bold}${fg_green} "Updated sbs!"
+    print ${bold}${fg_blue} " => ${fg_green}Updated sbs!"
 }
 
-delete() {
+remove() {
     TMP=$(mktemp)
+    print ${bold}${fg_green} "Removing SBS"
     print ${bold}${fg_green} "rm -rf ${SBS_INSTALLATION}/
 sudo rm -rf /bin/sbs
 rm -rf ${TMP}" > ${TMP}
