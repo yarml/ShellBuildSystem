@@ -13,13 +13,13 @@ help() {
     print ${bold}${fg_green} "Documentation for SBS is still in progress"
     print ""
     print ${bold}${fg_green}  "Those are the builtin verbs: "
-    print ${bold}${fg_yellow} "\thelp${reset}${fg_green}      : " "Display this menu"
-    print ${bold}${fg_yellow} "\tversion${reset}${fg_green}   : " "Display installed SBS version"
-    print ${bold}${fg_yellow} "\tupdate${reset}${fg_green}    : " "Check if an update is available and install it"
-    print ${bold}${fg_yellow} "\tnew${reset}${fg_green}       : " "Create a new project basic layout"
-    print ${bold}${fg_yellow} "\tproj-setup${reset}${fg_green}: " "Interactive menu to configure the project"
-    print ${bold}${fg_yellow} "\tbuild${reset}${fg_green}     : " "Build the project using the configuration"
-    print ${bold}${fg_yellow} "\tclean${reset}${fg_green}     : " "Clean builds"
+    print ${bold}${fg_yellow} "  help${reset}${fg_green}      : " "Display this menu"
+    print ${bold}${fg_yellow} "  version${reset}${fg_green}   : " "Display installed SBS version"
+    print ${bold}${fg_yellow} "  update${reset}${fg_green}    : " "Check if an update is available and install it"
+    print ${bold}${fg_yellow} "  new${reset}${fg_green}       : " "Create a new project basic layout"
+    print ${bold}${fg_yellow} "  proj-setup${reset}${fg_green}: " "Interactive menu to configure the project"
+    print ${bold}${fg_yellow} "  build${reset}${fg_green}     : " "Build the project using the configuration"
+    print ${bold}${fg_yellow} "  clean${reset}${fg_green}     : " "Clean builds"
 }
 
 version() {
@@ -94,7 +94,7 @@ clean() {
     if [[ -f ${PROJECT_FILE} ]]; then
         source ${PROJECT_FILE}
     else
-        print ${bold}${fg_green} "Project file not found!"
+        error "Project file not found!"
         exit 1
     fi
     BUILD_DIR=${BUILD_DIR:-"${PROJECT_DIR}/build/"}
@@ -127,7 +127,7 @@ update() {
 
     GITHUB_API_LATEST="https://api.github.com/repos/TheCoderCrab/ShellBuildSystem/releases/latest"
 
-    print ${bold}${fg_green} "Fetching update meta-data from: \"${GITHUB_API_LATEST}\"..."
+    print ${bold}${fg_green} "Fetching update meta-data from: ${fg_yellow}\"${GITHUB_API_LATEST}\"${fg_green}..."
 
     if [[ $(command -v wget) ]]; then
         TAG_NAME=$(wget -O - -q ${GITHUB_API_LATEST} | jq -r ".tag_name")
